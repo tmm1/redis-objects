@@ -1,6 +1,6 @@
 # This is the class loader, for use as "include Redis::Objects::Locks"
-# For the object itself, see "Redis::Lock"
-require 'redis/lock'
+# For the object itself, see "Redis::Type::Lock"
+require 'redis/type/lock'
 class Redis
   module Objects
     class UndefinedLock < StandardError; end #:nodoc:
@@ -22,7 +22,7 @@ class Redis
           if options[:global]
             instance_eval <<-EndMethods
               def #{lock_name}(&block)
-                @#{lock_name} ||= Redis::Lock.new(redis_field_key(:#{lock_name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{lock_name}])
+                @#{lock_name} ||= Redis::Type::Lock.new(redis_field_key(:#{lock_name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{lock_name}])
               end
             EndMethods
             class_eval <<-EndMethods
@@ -33,7 +33,7 @@ class Redis
           else
             class_eval <<-EndMethods
               def #{lock_name}(&block)
-                @#{lock_name} ||= Redis::Lock.new(redis_field_key(:#{lock_name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{lock_name}])
+                @#{lock_name} ||= Redis::Type::Lock.new(redis_field_key(:#{lock_name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{lock_name}])
               end
             EndMethods
           end
@@ -46,7 +46,7 @@ class Redis
           verify_lock_defined!(name)
           raise ArgumentError, "Missing block to #{self.name}.obtain_lock" unless block_given?
           lock_name = "#{name}_lock"
-          Redis::Lock.new(redis_field_key(lock_name, id), redis, @redis_objects[lock_name.to_sym]).lock(&block)
+          Redis::Type::Lock.new(redis_field_key(lock_name, id), redis, @redis_objects[lock_name.to_sym]).lock(&block)
         end
 
         # Clear the lock.  Use with care - usually only in an Admin page to clear

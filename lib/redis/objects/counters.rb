@@ -1,6 +1,6 @@
 # This is the class loader, for use as "include Redis::Objects::Counters"
-# For the object itself, see "Redis::Counter"
-require 'redis/counter'
+# For the object itself, see "Redis::Type::Counter"
+require 'redis/type/counter'
 class Redis
   module Objects
     class UndefinedCounter < StandardError; end #:nodoc:
@@ -27,7 +27,7 @@ class Redis
           if options[:global]
             instance_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::Counter.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::Counter.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
             EndMethods
             class_eval <<-EndMethods
@@ -38,7 +38,7 @@ class Redis
           else
             class_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::Counter.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::Counter.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
             EndMethods
           end
@@ -97,7 +97,7 @@ class Redis
         
         # Implements increment/decrement blocks on a class level
         def rewindable_block(rewind, name, id, value, &block) #:nodoc:
-          # Unfortunately this is almost exactly duplicated from Redis::Counter
+          # Unfortunately this is almost exactly duplicated from Redis::Type::Counter
           raise ArgumentError, "Missing block to rewindable_block somehow" unless block_given?
           ret = nil
           begin

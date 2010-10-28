@@ -1,17 +1,17 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-require 'redis/counter'
-require 'redis/list'
-require 'redis/value'
-require 'redis/lock'
-require 'redis/set'
-require 'redis/sorted_set'
-require 'redis/hash'
+require 'redis/type/counter'
+require 'redis/type/list'
+require 'redis/type/value'
+require 'redis/type/lock'
+require 'redis/type/set'
+require 'redis/type/sorted_set'
+require 'redis/type/hash'
 
-describe Redis::Value do
+describe Redis::Type::Value do
   before do
-    @value = Redis::Value.new('spec/value')
+    @value = Redis::Type::Value.new('spec/value')
     @value.delete
   end
 
@@ -51,7 +51,7 @@ describe Redis::Value do
     @value.rename('spec/value2')  # can't test result; switched from true to "OK"
     @value.key.should == 'spec/value2'
     @value.should == 'Peter Pan'
-    old = Redis::Value.new('spec/value')
+    old = Redis::Type::Value.new('spec/value')
     old.should.be.nil
     old.value = 'Tuff'
     @value.renamenx('spec/value')  # can't test result; switched from true to "OK"
@@ -64,10 +64,10 @@ describe Redis::Value do
 end
 
 
-describe Redis::List do
+describe Redis::Type::List do
   describe "as a bounded list" do
     before do
-      @list = Redis::List.new('spec/bounded_list',
+      @list = Redis::Type::List.new('spec/bounded_list',
                               $redis,
                               :maxlength => 10)
       1.upto(10) do |i|
@@ -101,7 +101,7 @@ describe Redis::List do
 
   describe "with basic operations" do
     before do
-      @list = Redis::List.new('spec/list')
+      @list = Redis::Type::List.new('spec/list')
       @list.clear
     end
 
@@ -212,7 +212,7 @@ describe Redis::List do
       @list.rename('spec/list2')  # can't test result; switched from true to "OK"
       @list.key.should == 'spec/list2'
       @list.redis.lrange(@list.key, 0, 3).should == ['a','b','a','3']
-      old = Redis::List.new('spec/list')
+      old = Redis::Type::List.new('spec/list')
       old.should.be.empty
       old << 'Tuff'
       old.values.should == ['Tuff']
@@ -230,10 +230,10 @@ describe Redis::List do
   end
 end
 
-describe Redis::Counter do
+describe Redis::Type::Counter do
   before do
-    @counter  = Redis::Counter.new('spec/counter')
-    @counter2 = Redis::Counter.new('spec/counter')
+    @counter  = Redis::Type::Counter.new('spec/counter')
+    @counter2 = Redis::Type::Counter.new('spec/counter')
     @counter.reset
   end
 
@@ -270,7 +270,7 @@ describe Redis::Counter do
   end
 end
 
-describe Redis::Lock do
+describe Redis::Type::Lock do
   before do
     $redis.flushall
   end
@@ -278,7 +278,7 @@ describe Redis::Lock do
   it "should set the value to the expiration" do
     start = Time.now
     expiry = 15
-    lock = Redis::Lock.new(:test_lock, :expiration => expiry)
+    lock = Redis::Type::Lock.new(:test_lock, :expiration => expiry)
     lock.lock do
       expiration = $redis.get("test_lock").to_f
 
@@ -292,7 +292,7 @@ describe Redis::Lock do
   end
 
   it "should set value to 1 when no expiration is set" do
-    lock = Redis::Lock.new(:test_lock)
+    lock = Redis::Type::Lock.new(:test_lock)
     lock.lock do
       $redis.get('test_lock').should == '1'
     end
@@ -303,7 +303,7 @@ describe Redis::Lock do
 
   it "should let lock be gettable when lock is expired" do
     expiry = 15
-    lock = Redis::Lock.new(:test_lock, :expiration => expiry, :timeout => 0.1)
+    lock = Redis::Type::Lock.new(:test_lock, :expiration => expiry, :timeout => 0.1)
 
     # create a fake lock in the past
     $redis.set("test_lock", Time.now-(expiry + 60))
@@ -320,7 +320,7 @@ describe Redis::Lock do
 
   it "should not let non-expired locks be gettable" do
     expiry = 15
-    lock = Redis::Lock.new(:test_lock, :expiration => expiry, :timeout => 0.1)
+    lock = Redis::Type::Lock.new(:test_lock, :expiration => expiry, :timeout => 0.1)
 
     # create a fake lock
     $redis.set("test_lock", (Time.now + expiry).to_f)
@@ -334,7 +334,7 @@ describe Redis::Lock do
     rescue => error
     end
 
-    error.should.be.kind_of(Redis::Lock::LockTimeout)
+    error.should.be.kind_of(Redis::Type::Lock::LockTimeout)
 
     # should not have the lock
     gotit.should.not.be.true
@@ -344,7 +344,7 @@ describe Redis::Lock do
   end
 
   it "should not remove the key if lock is held past expiration" do
-    lock = Redis::Lock.new(:test_lock, :expiration => 0.0)
+    lock = Redis::Type::Lock.new(:test_lock, :expiration => 0.0)
 
     lock.lock do
       sleep 1.1
@@ -356,9 +356,9 @@ describe Redis::Lock do
 end
 
 
-describe Redis::Hash do
+describe Redis::Type::Hash do
   before do
-    @hash  = Redis::Hash.new('test_hash')
+    @hash  = Redis::Type::Hash.new('test_hash')
     @hash.clear
   end
   
@@ -406,7 +406,7 @@ describe Redis::Hash do
   end
 
   it "should respond to empty?" do
-    @empty = Redis::Hash.new('test_empty_hash')
+    @empty = Redis::Type::Hash.new('test_empty_hash')
     @empty.respond_to?(:empty?).should == true
   end
 
@@ -451,12 +451,12 @@ describe Redis::Hash do
   
 end
 
-describe Redis::Set do
+describe Redis::Type::Set do
   before do
-    @set = Redis::Set.new('spec/set')
-    @set_1 = Redis::Set.new('spec/set_1')
-    @set_2 = Redis::Set.new('spec/set_2')
-    @set_3 = Redis::Set.new('spec/set_3')
+    @set = Redis::Type::Set.new('spec/set')
+    @set_1 = Redis::Type::Set.new('spec/set_1')
+    @set_2 = Redis::Type::Set.new('spec/set_2')
+    @set_3 = Redis::Type::Set.new('spec/set_3')
     @set.clear
     @set_1.clear
     @set_2.clear
@@ -550,7 +550,7 @@ describe Redis::Set do
     @set.key.should == 'spec/set'
     @set.rename('spec/set2')  # can't test result; switched from true to "OK"
     @set.key.should == 'spec/set2'
-    old = Redis::Set.new('spec/set')
+    old = Redis::Type::Set.new('spec/set')
     old.should.be.empty
     old << 'Tuff'
     @set.renamenx('spec/set').should.be.false
@@ -568,12 +568,12 @@ describe Redis::Set do
   end
 end
 
-describe Redis::SortedSet do
+describe Redis::Type::SortedSet do
   before do
-    @set = Redis::SortedSet.new('spec/zset')
-    @set_1 = Redis::SortedSet.new('spec/zset_1')
-    @set_2 = Redis::SortedSet.new('spec/zset_2')
-    @set_3 = Redis::SortedSet.new('spec/zset_3')
+    @set = Redis::Type::SortedSet.new('spec/zset')
+    @set_1 = Redis::Type::SortedSet.new('spec/zset_1')
+    @set_2 = Redis::Type::SortedSet.new('spec/zset_2')
+    @set_3 = Redis::Type::SortedSet.new('spec/zset_3')
     @set.clear
     @set_1.clear
     @set_2.clear
@@ -669,7 +669,7 @@ describe Redis::SortedSet do
     @set.key.should == 'spec/zset'
     @set.rename('spec/zset2')  # can't test result; switched from true to "OK"
     @set.key.should == 'spec/zset2'
-    old = Redis::SortedSet.new('spec/zset')
+    old = Redis::Type::SortedSet.new('spec/zset')
     old.should.be.empty
     old['tuff'] = 54
     @set.renamenx('spec/zset').should.be.false

@@ -1,6 +1,6 @@
 # This is the class loader, for use as "include Redis::Objects::Values"
-# For the object itself, see "Redis::Value"
-require 'redis/value'
+# For the object itself, see "Redis::Type::Value"
+require 'redis/type/value'
 class Redis
   module Objects
     module Values
@@ -19,7 +19,7 @@ class Redis
           if options[:global]
             instance_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::Value.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::Value.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
               def #{name}=(value)
                 #{name}.value = value
@@ -36,7 +36,7 @@ class Redis
           else
             class_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::Value.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::Value.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
               def #{name}=(value)
                 #{name}.value = value

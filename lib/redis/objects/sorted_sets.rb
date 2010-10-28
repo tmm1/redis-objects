@@ -1,6 +1,6 @@
 # This is the class loader, for use as "include Redis::Objects::Sets"
-# For the object itself, see "Redis::Set"
-require 'redis/sorted_set'
+# For the object itself, see "Redis::Type::SortedSet"
+require 'redis/type/sorted_set'
 class Redis
   module Objects
     module SortedSets
@@ -19,7 +19,7 @@ class Redis
           if options[:global]
             instance_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::SortedSet.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::SortedSet.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
             EndMethods
             class_eval <<-EndMethods
@@ -30,7 +30,7 @@ class Redis
           else
             class_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::SortedSet.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::SortedSet.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
             EndMethods
           end

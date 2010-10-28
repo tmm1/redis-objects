@@ -1,6 +1,6 @@
 # This is the class loader, for use as "include Redis::Objects::Sets"
-# For the object itself, see "Redis::Set"
-require 'redis/set'
+# For the object itself, see "Redis::Type::Set"
+require 'redis/type/set'
 class Redis
   module Objects
     module Sets
@@ -19,7 +19,7 @@ class Redis
           if options[:global]
             instance_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::Set.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::Set.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
             EndMethods
             class_eval <<-EndMethods
@@ -30,7 +30,7 @@ class Redis
           else
             class_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::Set.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::Set.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
             EndMethods
           end

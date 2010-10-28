@@ -1,6 +1,6 @@
 # This is the class loader, for use as "include Redis::Objects::Lists"
-# For the object itself, see "Redis::List"
-require 'redis/list'
+# For the object itself, see "Redis::Type::List"
+require 'redis/type/list'
 class Redis
   module Objects
     module Lists
@@ -19,7 +19,7 @@ class Redis
           if options[:global]
             instance_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::List.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::List.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
             EndMethods
             class_eval <<-EndMethods
@@ -30,7 +30,7 @@ class Redis
           else
             class_eval <<-EndMethods
               def #{name}
-                @#{name} ||= Redis::List.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
+                @#{name} ||= Redis::Type::List.new(redis_field_key(:#{name}), #{klass_name}.redis, #{klass_name}.redis_objects[:#{name}])
               end
             EndMethods
           end

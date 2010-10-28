@@ -706,36 +706,36 @@ describe Redis::Objects do
     rescue => error
     end
     error.should.not.be.nil
-    error.should.be.kind_of(Redis::Lock::LockTimeout)
+    error.should.be.kind_of(Redis::Type::Lock::LockTimeout)
   end
 
   it "should pick up objects from superclass automatically" do
-    @vanilla_roster.available_slots.should.be.kind_of(Redis::Counter)
-    @vanilla_roster.pitchers.should.be.kind_of(Redis::Counter)
-    @vanilla_roster.basic.should.be.kind_of(Redis::Counter)
-    @vanilla_roster.resort_lock.should.be.kind_of(Redis::Lock)
-    @vanilla_roster.starting_pitcher.should.be.kind_of(Redis::Value)
-    @vanilla_roster.player_stats.should.be.kind_of(Redis::List)
-    @vanilla_roster.outfielders.should.be.kind_of(Redis::Set)
-    @vanilla_roster.rank.should.be.kind_of(Redis::SortedSet)
+    @vanilla_roster.available_slots.should.be.kind_of(Redis::Type::Counter)
+    @vanilla_roster.pitchers.should.be.kind_of(Redis::Type::Counter)
+    @vanilla_roster.basic.should.be.kind_of(Redis::Type::Counter)
+    @vanilla_roster.resort_lock.should.be.kind_of(Redis::Type::Lock)
+    @vanilla_roster.starting_pitcher.should.be.kind_of(Redis::Type::Value)
+    @vanilla_roster.player_stats.should.be.kind_of(Redis::Type::List)
+    @vanilla_roster.outfielders.should.be.kind_of(Redis::Type::Set)
+    @vanilla_roster.rank.should.be.kind_of(Redis::Type::SortedSet)
 
     # custom keys
-    @vanilla_roster.player_totals.should.be.kind_of(Redis::Counter)
-    @vanilla_roster.all_player_stats.should.be.kind_of(Redis::List)
-    @vanilla_roster.total_wins.should.be.kind_of(Redis::Set)
-    @vanilla_roster.my_rank.should.be.kind_of(Redis::Value)
-    @vanilla_roster.weird_key.should.be.kind_of(Redis::Value)
+    @vanilla_roster.player_totals.should.be.kind_of(Redis::Type::Counter)
+    @vanilla_roster.all_player_stats.should.be.kind_of(Redis::Type::List)
+    @vanilla_roster.total_wins.should.be.kind_of(Redis::Type::Set)
+    @vanilla_roster.my_rank.should.be.kind_of(Redis::Type::Value)
+    @vanilla_roster.weird_key.should.be.kind_of(Redis::Type::Value)
 
     # globals via class
-    @vanilla_roster.total_players_online.should.be.kind_of(Redis::Counter)
-    @vanilla_roster.all_player_stats.should.be.kind_of(Redis::List)
-    @vanilla_roster.all_players_online.should.be.kind_of(Redis::Set)
-    @vanilla_roster.last_player.should.be.kind_of(Redis::Value)
+    @vanilla_roster.total_players_online.should.be.kind_of(Redis::Type::Counter)
+    @vanilla_roster.all_player_stats.should.be.kind_of(Redis::Type::List)
+    @vanilla_roster.all_players_online.should.be.kind_of(Redis::Type::Set)
+    @vanilla_roster.last_player.should.be.kind_of(Redis::Type::Value)
 
-    VanillaRoster.total_players_online.should.be.kind_of(Redis::Counter)
-    VanillaRoster.all_player_stats.should.be.kind_of(Redis::List)
-    VanillaRoster.all_players_online.should.be.kind_of(Redis::Set)
-    VanillaRoster.last_player.should.be.kind_of(Redis::Value)
+    VanillaRoster.total_players_online.should.be.kind_of(Redis::Type::Counter)
+    VanillaRoster.all_player_stats.should.be.kind_of(Redis::Type::List)
+    VanillaRoster.all_players_online.should.be.kind_of(Redis::Type::Set)
+    VanillaRoster.last_player.should.be.kind_of(Redis::Type::Value)
   end
 
   it "should allow subclass overrides of the same redis object" do

@@ -127,19 +127,19 @@ Redis::Objects needs a handle to the +redis+ server.  For standalone use, you
 can either set the $redis global variable:
 
     $redis = Redis.new(:host => 'localhost', :port => 6379)
-    @list  = Redis::List.new('mylist')
+    @list  = Redis::Type::List.new('mylist')
 
 Or you can pass the Redis handle into the new method for each type:
 
     redis  = Redis.new(:host => 'localhost', :port => 6379)
-    @list  = Redis::List.new('mylist', redis)
+    @list  = Redis::Type::List.new('mylist', redis)
 
 === Counters
 
 Create a new counter. The +counter_name+ is the key stored in Redis.
 
-    require 'redis/counter'
-    @counter = Redis::Counter.new('counter_name')
+    require 'redis/type/counter'
+    @counter = Redis::Type::Counter.new('counter_name')
     @counter.increment
     @counter.decrement
     puts @counter.value
@@ -157,7 +157,7 @@ See the section on "Atomicity" for cool uses of atomic counter blocks.
 A convenience class that wraps the pattern of {using +setnx+ to perform locking}[http://code.google.com/p/redis/wiki/SetnxCommand].
 
     require 'redis/lock'
-    @lock = Redis::Lock.new('image_resizing', :expiration => 15, :timeout => 0.1)
+    @lock = Redis::Type::Lock.new('image_resizing', :expiration => 15, :timeout => 0.1)
     @lock.lock do
       # do work
     end
@@ -168,15 +168,15 @@ This can be especially useful if you're running batch jobs spread across multipl
 
 Simple values are easy as well:
 
-    require 'redis/value'
-    @value = Redis::Value.new('value_name')
+    require 'redis/type/value'
+    @value = Redis::Type::Value.new('value_name')
     @value.value = 'a'
     @value.delete
 
 Complex data is no problem with :marshal => true:
 
     @account = Account.create!(params[:account])
-    @newest  = Redis::Value.new('newest_account', :marshal => true)
+    @newest  = Redis::Type::Value.new('newest_account', :marshal => true)
     @newest.value = @account.attributes
     puts @newest.value['username']
 
@@ -184,8 +184,8 @@ Complex data is no problem with :marshal => true:
 
 Lists work just like Ruby arrays:
 
-    require 'redis/list'
-    @list = Redis::List.new('list_name')
+    require 'redis/type/list'
+    @list = Redis::Type::List.new('list_name')
     @list << 'a'
     @list << 'b'
     @list.include? 'c'   # false
@@ -203,11 +203,11 @@ Lists work just like Ruby arrays:
 You can bound the size of the list to only hold N elements like so:
 
     # Only holds 10 elements, throws out old ones when you reach :maxlength.
-    @list = Redis::List.new('list_name', redis_handle, :maxlength => 10)
+    @list = Redis::Type::List.new('list_name', redis_handle, :maxlength => 10)
 
 Complex data types are no problem with :marshal => true:
 
-    @list = Redis::List.new('list_name', :marshal => true)
+    @list = Redis::Type::List.new('list_name', :marshal => true)
     @list << {:name => "Nate", :city => "San Diego"}
     @list << {:name => "Peter", :city => "Oceanside"}
     @list.each do |el|
@@ -219,8 +219,8 @@ Complex data types are no problem with :marshal => true:
 Hashes work like a Ruby {Hash}[http://ruby-doc.org/core/classes/Hash.html], with
 a few Redis-specific additions.
 
-    require 'redis/hash'
-    @hash = Redis::Hash.new('hash_name')
+    require 'redis/type/hash'
+    @hash = Redis::Type::Hash.new('hash_name')
     @hash['a'] = 1
     @hash['b'] = 2
     @hash.each do |k,v|
@@ -242,8 +242,8 @@ Remember that numbers become strings in Redis.  Unlike with other Redis data typ
 
 Sets work like the Ruby {Set}[http://ruby-doc.org/core/classes/Set.html] class:
 
-    require 'redis/set'
-    @set = Redis::Set.new('set_name')
+    require 'redis/type/set'
+    @set = Redis::Type::Set.new('set_name')
     @set << 'a'
     @set << 'b'
     @set << 'a'  # dup ignored
@@ -258,9 +258,9 @@ Sets work like the Ruby {Set}[http://ruby-doc.org/core/classes/Set.html] class:
 
 You can perform Redis intersections/unions/diffs easily:
 
-    @set1 = Redis::Set.new('set1')
-    @set2 = Redis::Set.new('set2')
-    @set3 = Redis::Set.new('set3')
+    @set1 = Redis::Type::Set.new('set1')
+    @set2 = Redis::Type::Set.new('set2')
+    @set3 = Redis::Type::Set.new('set3')
     members = @set1 & @set2   # intersection
     members = @set1 | @set2   # union
     members = @set1 + @set2   # union
@@ -281,8 +281,8 @@ Or store them in Redis:
 
 And use complex data types too, with :marshal => true:
 
-    @set1 = Redis::Set.new('set1', :marshal => true)
-    @set2 = Redis::Set.new('set2', :marshal => true)
+    @set1 = Redis::Type::Set.new('set1', :marshal => true)
+    @set2 = Redis::Type::Set.new('set2', :marshal => true)
     @set1 << {:name => "Nate", :city => "San Diego"}
     @set1 << {:name => "Peter", :city => "Oceanside"}
     @set2 << {:name => "Nate", :city => "San Diego"}
@@ -297,8 +297,8 @@ And use complex data types too, with :marshal => true:
 Due to their unique properties, Sorted Sets work like a hybrid between
 a Hash and an Array.  You assign like a Hash, but retrieve like an Array:
 
-    require 'redis/sorted_set'
-    @sorted_set = Redis::SortedSet.new('number_of_posts')
+    require 'redis/type/sorted_set'
+    @sorted_set = Redis::Type::SortedSet.new('number_of_posts')
     @sorted_set['Nate']  = 15
     @sorted_set['Peter'] = 75
     @sorted_set['Jeff']  = 24
